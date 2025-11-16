@@ -10,3 +10,10 @@ class CustomUserAdmin(admin.ModelAdmin):
         'full_name',
         'email'
     )
+
+    search_fields = (
+        'id',
+        'full_name',
+        'email',
+        'username'
+    )
