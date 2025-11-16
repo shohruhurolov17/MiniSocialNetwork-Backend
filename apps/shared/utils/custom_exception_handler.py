@@ -50,7 +50,7 @@ def custom_exception_handler(exc, context):
 
         response.data = {
             'success': False,
-            'message': 'Request was throttled!'
+            'message': 'Request was throttled.'
         }
 
     return response

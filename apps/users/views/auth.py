@@ -11,12 +11,58 @@ from apps.users.models import CustomUser
 from django.core import signing
 from rest_framework.exceptions import NotFound
 from apps.users.tasks import send_verification_url_to_email
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+
+
+class TokenRefreshView(APIView):
+
+    authentication_classes = ()
+    permission_classes = ()
+    throttle_classes = (AnonRateThrottle, )
+    serializer_class = TokenRefreshSerializer
+
+    def post(self, request):
+
+        try:
+
+            serializer = self.serializer_class(data=self.request.data)
+
+            if serializer.is_valid():
+
+                refresh_token = serializer.validated_data['refresh']
+
+                token = RefreshToken(refresh_token)
+
+                data = {
+                    'access_token': str(token.access_token), 
+                    'refresh_token': str(token)
+                }
+
+                return CustomResponse(data=data)
+
+            else:
+
+                error_message = (serializer.errors)
+
+                return CustomResponse(
+                    success=False,
+                    message=error_message,
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        except TokenError as e:
+            
+            raise InvalidToken(e.args[0])
 
 
 class LoginView(APIView):
 
     authentication_classes = ()
     permission_classes = ()
+    throttle_classes = (AnonRateThrottle, )
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -64,17 +110,39 @@ class LogoutView(APIView):
 
     authentication_classes = ()
     permission_classes = ()
+    throttle_classes = (AnonRateThrottle, )
     serializer_class = LogoutSerializer
 
     def post(self, request):
 
-        pass
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+
+            refresh = serializer.validated_data['refresh']
+
+            token = RefreshToken(refresh)
+
+            token.blacklist()
+
+            return CustomResponse(message='Successful log-out')
+        
+        else:
+
+            error_message = str(serializer.errors)
+
+            return CustomResponse(
+                success=False,
+                message=error_message,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class RegisterView(APIView):
 
     authentication_classes = ()
     permission_classes = ()
+    throttle_classes = (AnonRateThrottle, )
     serializer_class = RegisterSerializer
 
     def post(self, request):
@@ -108,6 +176,7 @@ class VerifyEmailView(APIView):
 
     authentication_classes = ()
     permission_classes = ()
+    throttle_classes = (AnonRateThrottle, )
 
     def get_object(self, id):
 
@@ -155,6 +224,8 @@ class VerifyEmailView(APIView):
 
 
 class SendVerificationEmailView(APIView):
+
+    throttle_classes = (AnonRateThrottle, UserRateThrottle)
 
     def post(self, request):
 

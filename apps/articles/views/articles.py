@@ -11,15 +11,17 @@ from apps.shared.response import CustomResponse
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 from collections import defaultdict
-from django.db.models import Prefetch, F, Q
+from django.db.models import F, Q
 from apps.shared.pagination import CustomPagination
 from rest_framework.generics import ListCreateAPIView
 from apps.users.permissions import IsVerified
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
 
 class ArticleListCreateView(APIView):
 
     permission_classes = (IsVerified, )
+    throttle_classes = (AnonRateThrottle, UserRateThrottle)
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -141,6 +143,7 @@ class ArticleListCreateView(APIView):
 class ArticleDetailView(APIView):
 
     permission_classes = (IsVerified, )
+    throttle_classes = (AnonRateThrottle, UserRateThrottle)
     serializer_class = ArticleDetailSerializer
 
     def get_object(self):
@@ -199,6 +202,7 @@ class ArticleDetailView(APIView):
 class ArticleCommentListCreateView(ListCreateAPIView):
 
     permission_classes = (IsVerified, )
+    throttle_classes = (AnonRateThrottle, UserRateThrottle)
     serializer_class = ArticleCommentSerializer
 
     def get_object(self):
@@ -249,6 +253,8 @@ class ArticleCommentListCreateView(ListCreateAPIView):
 
 
 class LikeArticleView(APIView):
+
+    throttle_classes = (AnonRateThrottle, UserRateThrottle)
 
     def get_object(self):
 

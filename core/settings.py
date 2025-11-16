@@ -22,7 +22,8 @@ INSTALLED_APPS = [
     'apps.articles',
     'drf_spectacular',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist'
+    'rest_framework_simplejwt.token_blacklist',
+    'django_redis'
 ]
 
 MIDDLEWARE = [

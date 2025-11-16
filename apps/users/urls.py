@@ -5,7 +5,8 @@ from apps.users.views import (
     LogoutView,
     UserDetailView,
     VerifyEmailView,
-    SendVerificationEmailView
+    SendVerificationEmailView,
+    TokenRefreshView
 )
 
 
@@ -15,5 +16,6 @@ urlpatterns = [
     path('auth/send-verification/', SendVerificationEmailView.as_view(), name='send_verification'),
     path('auth/login/', LoginView.as_view(), name='auth_login'),
     path('auth/log-out/', LogoutView.as_view(), name='auth_logout'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='refresh_token'),
     path('user/profile/', UserDetailView.as_view(), name='user_detail')
 ]
